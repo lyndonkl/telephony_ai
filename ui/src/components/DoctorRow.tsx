@@ -13,7 +13,7 @@ export const DoctorRow: React.FC<DoctorRowProps> = ({ doctor, isNew = false, onD
 
   useEffect(() => {
     if (isNew) {
-      const timer = setTimeout(() => setHighlight(false), 15000); // Fade out after 15s
+      const timer = setTimeout(() => setHighlight(false), 10000); // Fade out after 10s
       return () => clearTimeout(timer);
     }
   }, [isNew]);
@@ -32,11 +32,17 @@ export const DoctorRow: React.FC<DoctorRowProps> = ({ doctor, isNew = false, onD
         scale: 1,
         backgroundColor: highlight ? 'rgba(147, 197, 253, 0.3)' : 'transparent'
       }}
+      exit={{
+        opacity: 0,
+        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+        height: 0,
+        scale: 0.95,
+      }}
       transition={{
-        opacity: { duration: 3 },
-        height: { duration: 2, ease: "easeOut" },
-        scale: { duration: 2.5, ease: "easeOut" },
-        backgroundColor: { duration: 12, ease: 'easeOut' }
+        opacity: { duration: 2 },
+        height: { duration: 1.5, ease: "easeOut" },
+        scale: { duration: 1.8, ease: "easeOut" },
+        backgroundColor: { duration: 8, ease: 'easeOut' }
       }}
       className="hover:bg-base-200"
     >

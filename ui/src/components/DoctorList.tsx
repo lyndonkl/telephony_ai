@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { socket } from '../utils/socket';
 import { Doctor } from '../types/doctor';
 import { DoctorRow } from './DoctorRow';
+import { AnimatePresence } from 'framer-motion';
 
 interface DoctorListProps {
   doctors: Doctor[];
@@ -37,14 +38,16 @@ export const DoctorList: React.FC<DoctorListProps> = ({ doctors, onDelete }) => 
           </tr>
         </thead>
         <tbody>
-          {doctors.map((doctor) => (
-            <DoctorRow
-              key={doctor.id}
-              doctor={doctor}
-              isNew={newDoctorIds.has(doctor.id)}
-              onDelete={onDelete}
-            />
-          ))}
+          <AnimatePresence mode="popLayout">
+            {doctors.map((doctor) => (
+              <DoctorRow
+                key={doctor.id}
+                doctor={doctor}
+                isNew={newDoctorIds.has(doctor.id)}
+                onDelete={onDelete}
+              />
+            ))}
+          </AnimatePresence>
         </tbody>
       </table>
     </div>
