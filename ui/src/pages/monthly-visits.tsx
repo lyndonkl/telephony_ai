@@ -42,6 +42,16 @@ export default function MonthlyVisits() {
     }
   };
 
+  const isFirstMonth = () => {
+    const months = Array.from(new Set(visitStats.map(visit => visit.date))).sort();
+    return months.indexOf(currentMonth) === 0;
+  };
+
+  const isLastMonth = () => {
+    const months = Array.from(new Set(visitStats.map(visit => visit.date))).sort();
+    return months.indexOf(currentMonth) === months.length - 1;
+  };
+
   return (
     <PageTransition>
       <div className="container mx-auto p-4">
@@ -52,6 +62,7 @@ export default function MonthlyVisits() {
               <button 
                 className="btn btn-primary" 
                 onClick={handlePrevMonth}
+                disabled={isFirstMonth()}
               >
                 Previous Month
               </button>
@@ -61,6 +72,7 @@ export default function MonthlyVisits() {
               <button 
                 className="btn btn-primary" 
                 onClick={handleNextMonth}
+                disabled={isLastMonth()}
               >
                 Next Month
               </button>

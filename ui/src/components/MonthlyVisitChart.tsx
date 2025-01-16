@@ -134,5 +134,5 @@ export const MonthlyVisitChart: React.FC<MonthlyVisitChartProps> = ({ data }) =>
     };
   }, [data]);
 
-  return <div ref={containerRef} className="w-full h-[500px] overflow-hidden" />;
+  return <div ref={containerRef} className="w-full h-[550px] overflow-hidden" />;
 }; 
