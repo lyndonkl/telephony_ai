@@ -48,56 +48,85 @@ app.post('/api/doctors', (req, res) => {
   };
   doctors.push(newDoctor);
   io.emit('doctors:list', doctors);
-  res.status(201).json(newDoctor);
+  res.status(201).json({
+    results: [{
+      toolCallId: req.body.toolCallId || 'default',
+      result: newDoctor
+    }]
+  });
 });
 
 app.delete('/api/doctors', (req, res) => {
-  const { id } = req.body;
+  const { id, toolCallId } = req.body;
   if (!id) {
     return res.status(400).json({ error: 'Doctor ID is required' });
   }
-  console.log('DELETE /api/doctors - Request to delete doctor:', id);
   doctors = doctors.filter(d => d.id !== id);
   io.emit('doctors:list', doctors);
-  res.status(204).send();
+  res.status(200).json({
+    results: [{
+      toolCallId: toolCallId || 'default',
+      result: `Doctor ${id} deleted successfully`
+    }]
+  });
 });
 
 app.post('/api/doctors/highlight', (req, res) => {
-  const { id } = req.body;
+  const { id, toolCallId } = req.body;
   if (!id) {
     return res.status(400).json({ error: 'Doctor ID is required' });
   }
   io.emit('doctor:highlight', id);
-  res.status(200).send();
+  res.status(200).json({
+    results: [{
+      toolCallId: toolCallId || 'default',
+      result: `Doctor ${id} highlighted successfully`
+    }]
+  });
 });
 
 app.post('/api/doctors/unhighlight', (req, res) => {
-  const { id } = req.body;
+  const { id, toolCallId } = req.body;
   if (!id) {
     return res.status(400).json({ error: 'Doctor ID is required' });
   }
   io.emit('doctor:unhighlight', id);
-  res.status(200).send();
+  res.status(200).json({
+    results: [{
+      toolCallId: toolCallId || 'default',
+      result: `Doctor ${id} unhighlighted successfully`
+    }]
+  });
 });
 
 // Navigation endpoint
 app.post('/api/navigate', (req, res) => {
-  const { tab } = req.body;
+  const { tab, toolCallId } = req.body;
   if (!tab) {
     return res.status(400).json({ error: 'Tab parameter is required' });
   }
   io.emit('navigation:change', tab);
-  res.status(200).send();
+  res.status(200).json({
+    results: [{
+      toolCallId: toolCallId || 'default',
+      result: `Navigated to ${tab} tab successfully`
+    }]
+  });
 });
 
 // Month selection endpoint
 app.post('/api/visits/month', (req, res) => {
-  const { month } = req.body;
+  const { month, toolCallId } = req.body;
   if (!month) {
     return res.status(400).json({ error: 'Month parameter is required' });
   }
   io.emit('visits:setMonth', month);
-  res.status(200).send();
+  res.status(200).json({
+    results: [{
+      toolCallId: toolCallId || 'default',
+      result: `Month set to ${month} successfully`
+    }]
+  });
 });
 
 app.get('/api/visits/stats', (req, res) => {
