@@ -7,6 +7,19 @@ export const DoctorList: React.FC = () => {
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Fetch initial doctors list
+    const fetchDoctors = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors`);
+        const data = await response.json();
+        setDoctors(data);
+      } catch (error) {
+        console.error('Failed to fetch doctors:', error);
+      }
+    };
+
+    fetchDoctors();
+
     // Listen for doctors list updates
     const handleDoctorsList = (updatedDoctors: Doctor[]) => {
       setDoctors(updatedDoctors);
