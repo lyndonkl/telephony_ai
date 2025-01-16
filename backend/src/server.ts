@@ -80,6 +80,16 @@ app.post('/api/navigate', (req, res) => {
   res.status(200).send();
 });
 
+// Month selection endpoint
+app.post('/api/visits/month', (req, res) => {
+  const { month } = req.body;
+  if (!month) {
+    return res.status(400).json({ error: 'Month parameter is required' });
+  }
+  io.emit('visits:setMonth', month);
+  res.status(200).send();
+});
+
 app.get('/api/visits/stats', (req, res) => {
   res.json(mockVisitStats);
 });

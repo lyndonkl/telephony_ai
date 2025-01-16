@@ -3,10 +3,22 @@ import { MonthlyVisitChart } from '../components/MonthlyVisitChart';
 import { DoctorVisitStats } from '../types/doctor';
 import { PageTransition } from '../components/PageTransition';
 import { motion, AnimatePresence } from 'framer-motion';
+import { socket } from '../utils/socket';
 
 export default function MonthlyVisits() {
   const [visitStats, setVisitStats] = useState<DoctorVisitStats[]>([]);
   const [currentMonth, setCurrentMonth] = useState<string>('');
+
+  useEffect(() => {
+    const handleSetMonth = (month: string) => {
+      setCurrentMonth(month);
+    };
+
+    socket.on('visits:setMonth', handleSetMonth);
+    return () => {
+      socket.off('visits:setMonth', handleSetMonth);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -67,7 +79,11 @@ export default function MonthlyVisits() {
                 Previous Month
               </button>
               <h2 className="text-xl font-bold">
-                {new Date(currentMonth + '-01').toLocaleString('default', { month: 'long', year: 'numeric' })}
+                {currentMonth && (() => {
+                  const [year, month] = currentMonth.split('-');
+                  const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+                  return date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                })()}
               </h2>
               <button 
                 className="btn btn-primary" 
