@@ -5,18 +5,25 @@ import { useEffect, useState } from 'react';
 interface DoctorRowProps {
   doctor: Doctor;
   isNew?: boolean;
+  isHighlighted?: boolean;
   onDelete: (id: string) => void;
 }
 
-export const DoctorRow: React.FC<DoctorRowProps> = ({ doctor, isNew = false, onDelete }) => {
+export const DoctorRow: React.FC<DoctorRowProps> = ({ doctor, isNew = false, isHighlighted = false, onDelete }) => {
   const [highlight, setHighlight] = useState(isNew);
 
   useEffect(() => {
     if (isNew) {
-      const timer = setTimeout(() => setHighlight(false), 10000); // Fade out after 10s
+      const timer = setTimeout(() => setHighlight(false), 10000);
       return () => clearTimeout(timer);
     }
   }, [isNew]);
+
+  useEffect(() => {
+    if (isHighlighted) {
+      setHighlight(true);
+    }
+  }, [isHighlighted]);
 
   return (
     <motion.tr
@@ -30,7 +37,12 @@ export const DoctorRow: React.FC<DoctorRowProps> = ({ doctor, isNew = false, onD
         opacity: 1,
         height: 'auto',
         scale: 1,
-        backgroundColor: highlight ? 'rgba(147, 197, 253, 0.3)' : 'transparent'
+        backgroundColor: isHighlighted 
+          ? 'rgba(255, 215, 0, 0.3)'  // Gold color for highlights
+          : highlight 
+            ? 'rgba(147, 197, 253, 0.3)'  // Blue for new items
+            : 'transparent',
+        boxShadow: isHighlighted ? '0 0 15px rgba(255, 215, 0, 0.5)' : 'none'
       }}
       exit={{
         opacity: 0,
@@ -44,7 +56,7 @@ export const DoctorRow: React.FC<DoctorRowProps> = ({ doctor, isNew = false, onD
         scale: { duration: 1.8, ease: "easeOut" },
         backgroundColor: { duration: 8, ease: 'easeOut' }
       }}
-      className="hover:bg-base-200"
+      className={`hover:bg-base-200 ${isHighlighted ? 'font-semibold' : ''}`}
     >
       <td>{doctor.name}</td>
       <td>{doctor.specialty}</td>

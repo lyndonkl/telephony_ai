@@ -12,6 +12,25 @@ interface DoctorListProps {
 export const DoctorList: React.FC<DoctorListProps> = ({ doctors, onDelete }) => {
   const [newDoctorIds, setNewDoctorIds] = useState<Set<string>>(new Set());
   const [prevDoctors, setPrevDoctors] = useState<Doctor[]>([]);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleHighlight = (doctorId: string) => {
+      setHighlightedId(doctorId);
+    };
+
+    const handleUnhighlight = (doctorId: string) => {
+      setHighlightedId(null);
+    };
+
+    socket.on('doctor:highlight', handleHighlight);
+    socket.on('doctor:unhighlight', handleUnhighlight);
+    
+    return () => { 
+      socket.off('doctor:highlight', handleHighlight);
+      socket.off('doctor:unhighlight', handleUnhighlight);
+    };
+  }, []);
 
   useEffect(() => {
     // Find new doctors by comparing with previous list
@@ -44,6 +63,7 @@ export const DoctorList: React.FC<DoctorListProps> = ({ doctors, onDelete }) => 
                 key={doctor.id}
                 doctor={doctor}
                 isNew={newDoctorIds.has(doctor.id)}
+                isHighlighted={doctor.id === highlightedId}
                 onDelete={onDelete}
               />
             ))}

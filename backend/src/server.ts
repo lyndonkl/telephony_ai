@@ -65,6 +65,11 @@ app.post('/api/doctors/:id/highlight', (req, res) => {
   res.status(200).send();
 });
 
+app.post('/api/doctors/:id/unhighlight', (req, res) => {
+  io.emit('doctor:unhighlight', req.params.id);
+  res.status(200).send();
+});
+
 app.get('/api/visits/stats', (req, res) => {
   res.json(mockVisitStats);
 });
