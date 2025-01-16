@@ -21,6 +21,7 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
       width: 500,
       height: 300,
       padding: 5,
+      autosize: 'fit',
       data: [
         {
           name: 'visits',
@@ -37,6 +38,7 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
         },
         {
           name: 'yscale',
+          type: 'linear',
           domain: { data: 'visits', field: 'visitCount' },
           nice: true,
           range: 'height'
@@ -74,8 +76,27 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
                   strokeWidth: { value: 2 }
                 }
               }
+            },
+            {
+              type: 'symbol',
+              from: { data: 'series' },
+              encode: {
+                enter: {
+                  x: { scale: 'xscale', field: 'quarter' },
+                  y: { scale: 'yscale', field: 'visitCount' },
+                  fill: { scale: 'color', field: 'familyMember' },
+                  size: { value: 100 }
+                }
+              }
             }
           ]
+        }
+      ],
+      legends: [
+        {
+          fill: 'color',
+          title: 'Family Member',
+          orient: 'right'
         }
       ]
     };
@@ -83,17 +104,29 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
     const runtime = parse(spec);
     const view = new View(runtime)
       .initialize(containerRef.current)
+      .width(containerRef.current.clientWidth)
       .hover()
       .run();
 
     viewRef.current = view;
 
+    const handleResize = () => {
+      if (containerRef.current && viewRef.current) {
+        viewRef.current
+          .width(containerRef.current.clientWidth)
+          .run();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
     return () => {
       if (viewRef.current) {
         viewRef.current.finalize();
       }
+      window.removeEventListener('resize', handleResize);
     };
   }, [data]);
 
-  return <div ref={containerRef} className="w-full h-[400px]" />;
+  return <div ref={containerRef} className="w-full h-[400px] overflow-hidden" />;
 }; 

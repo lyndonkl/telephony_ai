@@ -29,12 +29,20 @@ export const DoctorList: React.FC = () => {
   }, []);
 
   const handleDelete = useCallback(async (doctorId: string) => {
+    console.log('Attempting to delete doctor:', doctorId);
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors/${doctorId}`, {
+      // Add fallback URL if environment variable is not set
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const url = `${apiUrl}/api/doctors/${doctorId}`;
+      console.log('Delete request URL:', url);
+      
+      await fetch(url, {
         method: 'DELETE',
       });
+      console.log('Delete request successful');
     } catch (error) {
       console.error('Failed to delete doctor:', error);
+      alert('Failed to delete doctor. Please try again.');
     }
   }, []);
 

@@ -26,6 +26,7 @@ io.on('connection', (socket) => {
   console.log('Client connected');
   
   // Send initial doctors list
+  console.log('Sending initial doctors list:', doctors);
   socket.emit('doctors:list', doctors);
 
   socket.on('disconnect', () => {
@@ -35,6 +36,7 @@ io.on('connection', (socket) => {
 
 // REST endpoints
 app.get('/api/doctors', (req, res) => {
+  console.log('GET /api/doctors - Returning:', doctors);
   res.json(doctors);
 });
 
@@ -50,7 +52,10 @@ app.post('/api/doctors', (req, res) => {
 });
 
 app.delete('/api/doctors/:id', (req, res) => {
+  console.log('DELETE /api/doctors/:id - Request to delete doctor:', req.params.id);
+  console.log('Current doctors before delete:', doctors);
   doctors = doctors.filter(d => d.id !== req.params.id);
+  console.log('Doctors after delete:', doctors);
   io.emit('doctors:list', doctors);
   res.status(204).send();
 });
