@@ -18,7 +18,7 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
 
     const spec: Spec = {
       $schema: 'https://vega.github.io/schema/vega/v5.json',
-      width: 500,
+      width: 800,
       height: 300,
       padding: 5,
       autosize: 'fit',
@@ -32,9 +32,13 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
         {
           name: 'xscale',
           type: 'band',
-          domain: { data: 'visits', field: 'quarter' },
+          domain: { 
+            data: 'visits', 
+            field: 'quarter',
+            sort: true
+          },
           range: 'width',
-          padding: 0.1
+          padding: 0.2
         },
         {
           name: 'yscale',
@@ -47,12 +51,23 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
           name: 'color',
           type: 'ordinal',
           domain: { data: 'visits', field: 'familyMember' },
-          range: { scheme: 'category10' }
+          range: { scheme: 'category20' }
         }
       ],
       axes: [
-        { orient: 'bottom', scale: 'xscale', title: 'Quarter' },
-        { orient: 'left', scale: 'yscale', title: 'Visit Count' }
+        { 
+          orient: 'bottom', 
+          scale: 'xscale', 
+          title: 'Quarter',
+          labelAngle: -45,
+          labelAlign: 'right'
+        },
+        { 
+          orient: 'left', 
+          scale: 'yscale', 
+          title: 'Visit Count',
+          grid: true
+        }
       ],
       marks: [
         {
@@ -96,7 +111,9 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
         {
           fill: 'color',
           title: 'Family Member',
-          orient: 'right'
+          orient: 'right',
+          offset: 10,
+          padding: 10
         }
       ]
     };
