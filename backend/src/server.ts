@@ -51,22 +51,32 @@ app.post('/api/doctors', (req, res) => {
   res.status(201).json(newDoctor);
 });
 
-app.delete('/api/doctors/:id', (req, res) => {
-  console.log('DELETE /api/doctors/:id - Request to delete doctor:', req.params.id);
-  console.log('Current doctors before delete:', doctors);
-  doctors = doctors.filter(d => d.id !== req.params.id);
-  console.log('Doctors after delete:', doctors);
+app.delete('/api/doctors', (req, res) => {
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ error: 'Doctor ID is required' });
+  }
+  console.log('DELETE /api/doctors - Request to delete doctor:', id);
+  doctors = doctors.filter(d => d.id !== id);
   io.emit('doctors:list', doctors);
   res.status(204).send();
 });
 
-app.post('/api/doctors/:id/highlight', (req, res) => {
-  io.emit('doctor:highlight', req.params.id);
+app.post('/api/doctors/highlight', (req, res) => {
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ error: 'Doctor ID is required' });
+  }
+  io.emit('doctor:highlight', id);
   res.status(200).send();
 });
 
-app.post('/api/doctors/:id/unhighlight', (req, res) => {
-  io.emit('doctor:unhighlight', req.params.id);
+app.post('/api/doctors/unhighlight', (req, res) => {
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ error: 'Doctor ID is required' });
+  }
+  io.emit('doctor:unhighlight', id);
   res.status(200).send();
 });
 
