@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { VisitGraph } from '../components/VisitGraph';
 import { DoctorVisitStats } from '../types/doctor';
+import { PageTransition } from '../components/PageTransition';
 
 export default function Statistics() {
   const [visitStats, setVisitStats] = useState<DoctorVisitStats[]>([]);
@@ -20,13 +21,15 @@ export default function Statistics() {
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-8">Visit Statistics</h1>
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body">
-          <VisitGraph data={visitStats} />
+    <PageTransition>
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-8">Visit Statistics</h1>
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            <VisitGraph data={visitStats} />
+          </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 } 
