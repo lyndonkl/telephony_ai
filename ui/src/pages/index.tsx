@@ -10,10 +10,10 @@ export default function Home() {
         <h1 className="text-3xl font-bold mb-8">Doctor Visit Dashboard</h1>
         <div className="flex justify-end mb-4">
           <Link 
-            href="/statistics" 
+            href="/visit-trends" 
             className="btn btn-primary"
           >
-            View Statistics
+            View Visit Trends
           </Link>
         </div>
         

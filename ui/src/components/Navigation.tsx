@@ -24,10 +24,18 @@ export const Navigation: React.FC = () => {
             </li>
             <li>
               <Link 
-                href="/statistics" 
-                className={router.pathname === '/statistics' ? 'active' : ''}
+                href="/visit-trends" 
+                className={router.pathname === '/visit-trends' ? 'active' : ''}
               >
-                Statistics
+                Visit Trends
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/monthly-visits" 
+                className={router.pathname === '/monthly-visits' ? 'active' : ''}
+              >
+                Monthly Breakdown
               </Link>
             </li>
           </ul>

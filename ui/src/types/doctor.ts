@@ -8,6 +8,7 @@ export interface Doctor {
 export interface DoctorVisitStats {
   doctorId: string;
   visitCount: number;
-  quarter: string;
+  quarter?: string;
+  date: string;
   familyMember: string;
 } 

@@ -1,12 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { View, parse, Spec } from 'vega';
+import { DoctorVisitStats } from '../types/doctor';
 
 interface VisitGraphProps {
-  data: Array<{
-    quarter: string;
-    familyMember: string;
-    visitCount: number;
-  }>;
+  data: DoctorVisitStats[];
 }
 
 export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
@@ -30,13 +27,13 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
           transform: [
             {
               type: 'formula',
-              expr: "datetime(substring(datum.quarter, -4), " + 
-                    "(parseInt(substring(datum.quarter, 1, 2)) - 1) * 3, 1)",
+              expr: "datetime(substring(datum.date, 0, 4), " + 
+                    "parseInt(substring(datum.date, 5, 7)) - 1, 1)",
               as: 'quarterDate'
             },
             {
               type: 'aggregate',
-              groupby: ['quarter', 'quarterDate'],
+              groupby: ['date', 'quarterDate'],
               fields: ['visitCount', 'visitCount'],
               ops: ['mean', 'stdev'],
               as: ['mean_visits', 'stdev_visits']
@@ -67,7 +64,7 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
           range: 'width',
           domain: {
             data: 'source',
-            field: 'quarter',
+            field: 'date',
             sort: {
               field: 'quarterDate',
               order: 'ascending'
@@ -109,7 +106,7 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
           from: { data: 'confidence' },
           encode: {
             enter: {
-              x: { scale: 'x', field: 'quarter' },
+              x: { scale: 'x', field: 'date' },
               y: { scale: 'y', field: 'lower' },
               y2: { scale: 'y', field: 'upper' },
               fill: { value: '#4299e1' },
@@ -122,7 +119,7 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
           from: { data: 'source' },
           encode: {
             enter: {
-              x: { scale: 'x', field: 'quarter' },
+              x: { scale: 'x', field: 'date' },
               y: { scale: 'y', field: 'mean_visits' },
               stroke: { value: '#2b6cb0' },
               strokeWidth: { value: 3 }
@@ -134,7 +131,7 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
           from: { data: 'source' },
           encode: {
             enter: {
-              x: { scale: 'x', field: 'quarter' },
+              x: { scale: 'x', field: 'date' },
               y: { scale: 'y', field: 'mean_visits' },
               size: { value: 100 },
               fill: { value: '#2b6cb0' }

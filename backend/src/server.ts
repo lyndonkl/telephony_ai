@@ -66,7 +66,7 @@ app.post('/api/doctors/:id/highlight', (req, res) => {
 });
 
 app.get('/api/visits/stats', (req, res) => {
-  res.json(visitStats);
+  res.json(mockVisitStats);
 });
 
 // Start server

@@ -8,7 +8,7 @@ export interface Doctor {
 export interface DoctorVisitStats {
   doctorId: string;
   visitCount: number;
-  quarter: string;
+  date: string;
   familyMember: string;
 }
 
@@ -66,52 +66,52 @@ export const mockDoctors: Doctor[] = [
 
 export const mockVisitStats: DoctorVisitStats[] = [
   // Dad's visits
-  { doctorId: '1', visitCount: 3, quarter: 'Q2 2022', familyMember: 'Dad' },
-  { doctorId: '1', visitCount: 4, quarter: 'Q3 2022', familyMember: 'Dad' },
-  { doctorId: '1', visitCount: 2, quarter: 'Q4 2022', familyMember: 'Dad' },
-  { doctorId: '1', visitCount: 5, quarter: 'Q1 2023', familyMember: 'Dad' },
-  { doctorId: '1', visitCount: 3, quarter: 'Q2 2023', familyMember: 'Dad' },
-  { doctorId: '1', visitCount: 4, quarter: 'Q3 2023', familyMember: 'Dad' },
-  { doctorId: '1', visitCount: 6, quarter: 'Q4 2023', familyMember: 'Dad' },
-  { doctorId: '1', visitCount: 4, quarter: 'Q1 2024', familyMember: 'Dad' },
+  { doctorId: '1', visitCount: 2, date: '2023-01', familyMember: 'Dad' },
+  { doctorId: '1', visitCount: 1, date: '2023-02', familyMember: 'Dad' },
+  { doctorId: '1', visitCount: 2, date: '2023-03', familyMember: 'Dad' },
+  { doctorId: '1', visitCount: 5, date: '2023-04', familyMember: 'Dad' },
+  { doctorId: '1', visitCount: 3, date: '2023-05', familyMember: 'Dad' },
+  { doctorId: '1', visitCount: 4, date: '2023-06', familyMember: 'Dad' },
+  { doctorId: '1', visitCount: 6, date: '2023-07', familyMember: 'Dad' },
+  { doctorId: '1', visitCount: 4, date: '2023-08', familyMember: 'Dad' },
   
   // Mom's visits
-  { doctorId: '2', visitCount: 5, quarter: 'Q2 2022', familyMember: 'Mom' },
-  { doctorId: '2', visitCount: 4, quarter: 'Q3 2022', familyMember: 'Mom' },
-  { doctorId: '2', visitCount: 6, quarter: 'Q4 2022', familyMember: 'Mom' },
-  { doctorId: '2', visitCount: 4, quarter: 'Q1 2023', familyMember: 'Mom' },
-  { doctorId: '2', visitCount: 6, quarter: 'Q2 2023', familyMember: 'Mom' },
-  { doctorId: '2', visitCount: 3, quarter: 'Q3 2023', familyMember: 'Mom' },
-  { doctorId: '2', visitCount: 5, quarter: 'Q4 2023', familyMember: 'Mom' },
-  { doctorId: '2', visitCount: 7, quarter: 'Q1 2024', familyMember: 'Mom' },
+  { doctorId: '2', visitCount: 5, date: '2023-01', familyMember: 'Mom' },
+  { doctorId: '2', visitCount: 4, date: '2023-02', familyMember: 'Mom' },
+  { doctorId: '2', visitCount: 6, date: '2023-03', familyMember: 'Mom' },
+  { doctorId: '2', visitCount: 4, date: '2023-04', familyMember: 'Mom' },
+  { doctorId: '2', visitCount: 6, date: '2023-05', familyMember: 'Mom' },
+  { doctorId: '2', visitCount: 3, date: '2023-06', familyMember: 'Mom' },
+  { doctorId: '2', visitCount: 5, date: '2023-07', familyMember: 'Mom' },
+  { doctorId: '2', visitCount: 7, date: '2023-08', familyMember: 'Mom' },
   
   // Kid's visits
-  { doctorId: '3', visitCount: 3, quarter: 'Q2 2022', familyMember: 'Kid' },
-  { doctorId: '3', visitCount: 2, quarter: 'Q3 2022', familyMember: 'Kid' },
-  { doctorId: '3', visitCount: 4, quarter: 'Q4 2022', familyMember: 'Kid' },
-  { doctorId: '3', visitCount: 2, quarter: 'Q1 2023', familyMember: 'Kid' },
-  { doctorId: '3', visitCount: 4, quarter: 'Q2 2023', familyMember: 'Kid' },
-  { doctorId: '3', visitCount: 5, quarter: 'Q3 2023', familyMember: 'Kid' },
-  { doctorId: '3', visitCount: 3, quarter: 'Q4 2023', familyMember: 'Kid' },
-  { doctorId: '3', visitCount: 4, quarter: 'Q1 2024', familyMember: 'Kid' },
+  { doctorId: '3', visitCount: 3, date: '2023-01', familyMember: 'Kid' },
+  { doctorId: '3', visitCount: 2, date: '2023-02', familyMember: 'Kid' },
+  { doctorId: '3', visitCount: 4, date: '2023-03', familyMember: 'Kid' },
+  { doctorId: '3', visitCount: 2, date: '2023-04', familyMember: 'Kid' },
+  { doctorId: '3', visitCount: 4, date: '2023-05', familyMember: 'Kid' },
+  { doctorId: '3', visitCount: 5, date: '2023-06', familyMember: 'Kid' },
+  { doctorId: '3', visitCount: 3, date: '2023-07', familyMember: 'Kid' },
+  { doctorId: '3', visitCount: 4, date: '2023-08', familyMember: 'Kid' },
   
   // Grandma's visits
-  { doctorId: '4', visitCount: 4, quarter: 'Q2 2022', familyMember: 'Grandma' },
-  { doctorId: '4', visitCount: 5, quarter: 'Q3 2022', familyMember: 'Grandma' },
-  { doctorId: '4', visitCount: 7, quarter: 'Q4 2022', familyMember: 'Grandma' },
-  { doctorId: '4', visitCount: 6, quarter: 'Q1 2023', familyMember: 'Grandma' },
-  { doctorId: '4', visitCount: 5, quarter: 'Q2 2023', familyMember: 'Grandma' },
-  { doctorId: '4', visitCount: 7, quarter: 'Q3 2023', familyMember: 'Grandma' },
-  { doctorId: '4', visitCount: 4, quarter: 'Q4 2023', familyMember: 'Grandma' },
-  { doctorId: '4', visitCount: 6, quarter: 'Q1 2024', familyMember: 'Grandma' },
+  { doctorId: '4', visitCount: 4, date: '2023-01', familyMember: 'Grandma' },
+  { doctorId: '4', visitCount: 5, date: '2023-02', familyMember: 'Grandma' },
+  { doctorId: '4', visitCount: 7, date: '2023-03', familyMember: 'Grandma' },
+  { doctorId: '4', visitCount: 6, date: '2023-04', familyMember: 'Grandma' },
+  { doctorId: '4', visitCount: 5, date: '2023-05', familyMember: 'Grandma' },
+  { doctorId: '4', visitCount: 7, date: '2023-06', familyMember: 'Grandma' },
+  { doctorId: '4', visitCount: 4, date: '2023-07', familyMember: 'Grandma' },
+  { doctorId: '4', visitCount: 6, date: '2023-08', familyMember: 'Grandma' },
   
   // Grandpa's visits
-  { doctorId: '5', visitCount: 5, quarter: 'Q2 2022', familyMember: 'Grandpa' },
-  { doctorId: '5', visitCount: 6, quarter: 'Q3 2022', familyMember: 'Grandpa' },
-  { doctorId: '5', visitCount: 4, quarter: 'Q4 2022', familyMember: 'Grandpa' },
-  { doctorId: '5', visitCount: 3, quarter: 'Q1 2023', familyMember: 'Grandpa' },
-  { doctorId: '5', visitCount: 4, quarter: 'Q2 2023', familyMember: 'Grandpa' },
-  { doctorId: '5', visitCount: 6, quarter: 'Q3 2023', familyMember: 'Grandpa' },
-  { doctorId: '5', visitCount: 5, quarter: 'Q4 2023', familyMember: 'Grandpa' },
-  { doctorId: '5', visitCount: 5, quarter: 'Q1 2024', familyMember: 'Grandpa' }
+  { doctorId: '5', visitCount: 5, date: '2023-01', familyMember: 'Grandpa' },
+  { doctorId: '5', visitCount: 6, date: '2023-02', familyMember: 'Grandpa' },
+  { doctorId: '5', visitCount: 4, date: '2023-03', familyMember: 'Grandpa' },
+  { doctorId: '5', visitCount: 3, date: '2023-04', familyMember: 'Grandpa' },
+  { doctorId: '5', visitCount: 4, date: '2023-05', familyMember: 'Grandpa' },
+  { doctorId: '5', visitCount: 6, date: '2023-06', familyMember: 'Grandpa' },
+  { doctorId: '5', visitCount: 5, date: '2023-07', familyMember: 'Grandpa' },
+  { doctorId: '5', visitCount: 5, date: '2023-08', familyMember: 'Grandpa' }
 ]; 
