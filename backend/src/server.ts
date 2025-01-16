@@ -70,6 +70,16 @@ app.post('/api/doctors/:id/unhighlight', (req, res) => {
   res.status(200).send();
 });
 
+// Navigation endpoint
+app.post('/api/navigate', (req, res) => {
+  const { tab } = req.body;
+  if (!tab) {
+    return res.status(400).json({ error: 'Tab parameter is required' });
+  }
+  io.emit('navigation:change', tab);
+  res.status(200).send();
+});
+
 app.get('/api/visits/stats', (req, res) => {
   res.json(mockVisitStats);
 });
