@@ -22,100 +22,130 @@ export const VisitGraph: React.FC<VisitGraphProps> = ({ data }) => {
       height: 300,
       padding: 5,
       autosize: 'fit',
+      signals: [],
       data: [
         {
-          name: 'visits',
-          values: data
-        }
-      ],
-      scales: [
-        {
-          name: 'xscale',
-          type: 'band',
-          domain: { 
-            data: 'visits', 
-            field: 'quarter',
-            sort: true
-          },
-          range: 'width',
-          padding: 0.2
-        },
-        {
-          name: 'yscale',
-          type: 'linear',
-          domain: { data: 'visits', field: 'visitCount' },
-          nice: true,
-          range: 'height'
-        },
-        {
-          name: 'color',
-          type: 'ordinal',
-          domain: { data: 'visits', field: 'familyMember' },
-          range: { scheme: 'category20' }
-        }
-      ],
-      axes: [
-        { 
-          orient: 'bottom', 
-          scale: 'xscale', 
-          title: 'Quarter',
-          labelAngle: -45,
-          labelAlign: 'right'
-        },
-        { 
-          orient: 'left', 
-          scale: 'yscale', 
-          title: 'Visit Count',
-          grid: true
-        }
-      ],
-      marks: [
-        {
-          type: 'group',
-          from: {
-            facet: {
-              name: 'series',
-              data: 'visits',
-              groupby: 'familyMember'
-            }
-          },
-          marks: [
+          name: 'source',
+          values: data,
+          transform: [
             {
-              type: 'line',
-              from: { data: 'series' },
-              encode: {
-                enter: {
-                  x: { scale: 'xscale', field: 'quarter' },
-                  y: { scale: 'yscale', field: 'visitCount' },
-                  stroke: { scale: 'color', field: 'familyMember' },
-                  strokeWidth: { value: 2 }
-                }
-              }
+              type: 'formula',
+              expr: "datetime(substring(datum.quarter, -4), " + 
+                    "(parseInt(substring(datum.quarter, 1, 2)) - 1) * 3, 1)",
+              as: 'quarterDate'
             },
             {
-              type: 'symbol',
-              from: { data: 'series' },
-              encode: {
-                enter: {
-                  x: { scale: 'xscale', field: 'quarter' },
-                  y: { scale: 'yscale', field: 'visitCount' },
-                  fill: { scale: 'color', field: 'familyMember' },
-                  size: { value: 100 }
-                }
-              }
+              type: 'aggregate',
+              groupby: ['quarter', 'quarterDate'],
+              fields: ['visitCount', 'visitCount'],
+              ops: ['mean', 'stdev'],
+              as: ['mean_visits', 'stdev_visits']
+            }
+          ]
+        },
+        {
+          name: 'confidence',
+          source: 'source',
+          transform: [
+            {
+              type: 'formula',
+              expr: 'datum.mean_visits + (datum.stdev_visits * 1.96)',
+              as: 'upper'
+            },
+            {
+              type: 'formula',
+              expr: 'datum.mean_visits - (datum.stdev_visits * 1.96)',
+              as: 'lower'
             }
           ]
         }
       ],
-      legends: [
+      scales: [
         {
-          fill: 'color',
-          title: 'Family Member',
-          orient: 'right',
-          offset: 10,
-          padding: 10
+          name: 'x',
+          type: 'band',
+          range: 'width',
+          domain: {
+            data: 'source',
+            field: 'quarter',
+            sort: {
+              field: 'quarterDate',
+              order: 'ascending'
+            }
+          },
+          padding: 0.2
+        },
+        {
+          name: 'y',
+          type: 'linear',
+          range: 'height',
+          nice: true,
+          zero: false,
+          domain: {
+            fields: [
+              { data: 'confidence', field: 'lower' },
+              { data: 'confidence', field: 'upper' }
+            ]
+          }
         }
-      ]
+      ],
+      axes: [
+        {
+          orient: 'bottom',
+          scale: 'x',
+          title: 'Quarter',
+          labelAngle: -45,
+          labelAlign: 'right'
+        },
+        {
+          orient: 'left',
+          scale: 'y',
+          title: 'Visit Count'
+        }
+      ],
+      marks: [
+        {
+          type: 'area',
+          from: { data: 'confidence' },
+          encode: {
+            enter: {
+              x: { scale: 'x', field: 'quarter' },
+              y: { scale: 'y', field: 'lower' },
+              y2: { scale: 'y', field: 'upper' },
+              fill: { value: '#4299e1' },
+              opacity: { value: 0.3 }
+            }
+          }
+        },
+        {
+          type: 'line',
+          from: { data: 'source' },
+          encode: {
+            enter: {
+              x: { scale: 'x', field: 'quarter' },
+              y: { scale: 'y', field: 'mean_visits' },
+              stroke: { value: '#2b6cb0' },
+              strokeWidth: { value: 3 }
+            }
+          }
+        },
+        {
+          type: 'symbol',
+          from: { data: 'source' },
+          encode: {
+            enter: {
+              x: { scale: 'x', field: 'quarter' },
+              y: { scale: 'y', field: 'mean_visits' },
+              size: { value: 100 },
+              fill: { value: '#2b6cb0' }
+            }
+          }
+        }
+      ],
+      title: {
+        text: 'Average Doctor Visits per Quarter',
+        fontSize: 16
+      }
     };
 
     const runtime = parse(spec);
