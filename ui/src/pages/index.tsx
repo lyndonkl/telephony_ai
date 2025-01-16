@@ -1,9 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { DoctorList } from '../components/DoctorList';
 import { PageTransition } from '../components/PageTransition';
+import { socket } from '../utils/socket';
+import { Doctor } from '../types/doctor';
 
 export default function Home() {
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors`);
+      const data = await response.json();
+      setDoctors(data);
+    };
+
+    fetchDoctors();
+    socket.on('doctors:list', setDoctors);
+    return () => { socket.off('doctors:list', setDoctors); };
+  }, []);
+
+  const handleDelete = useCallback(async (id: string) => {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors/${id}`, {
+      method: 'DELETE'
+    });
+  }, []);
+
   return (
     <PageTransition>
       <div className="container mx-auto p-4">
@@ -21,7 +43,7 @@ export default function Home() {
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title">Doctors List</h2>
-              <DoctorList />
+              <DoctorList doctors={doctors} onDelete={handleDelete} />
             </div>
           </div>
         </div>
