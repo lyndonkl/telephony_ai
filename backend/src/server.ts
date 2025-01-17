@@ -205,6 +205,26 @@ app.get('/api/visits/stats', (req, res) => {
   res.json(mockVisitStats);
 });
 
+app.post('/api/viewRelationship', (req, res) => {
+  const { toolCallId, args } = extractToolCall(req);
+  console.log('Received viewRelationship request:', { toolCallId, args });
+
+  const { doctorId, familyMember } = args;
+  const doctorIdString = doctorId.toString();
+  console.log('Emitting relationships:view event:', { doctorId, familyMember });
+  io.emit('relationships:view', { 
+    doctorId: doctorIdString,
+    familyMember 
+  });
+
+  res.status(200).json({
+    results: [{
+      toolCallId,
+      result: `Viewed relationship for ${familyMember} with ${doctorIdString}`
+    }]
+  });
+});
+
 // Start server
 const PORT = process.env.PORT || 4000;
 httpServer.listen(PORT, () => {

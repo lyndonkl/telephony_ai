@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import * as d3 from 'd3';
 import { sankey, sankeyLinkHorizontal } from 'd3-sankey';
 import { DoctorVisitStats } from '../types/doctor';
@@ -26,9 +26,25 @@ interface ConnectionDetails {
   visits: DoctorVisitStats[];
 }
 
-export const SankeyDiagram: React.FC<SankeyDiagramProps> = ({ data, doctors }) => {
+export const SankeyDiagram = forwardRef<{ showConnection: (doctorId: string, familyMember: string) => void }, SankeyDiagramProps>(({ data, doctors }, ref) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedConnection, setSelectedConnection] = useState<ConnectionDetails | null>(null);
+
+  const showConnection = useCallback((doctorId: string, familyMember: string) => {
+    console.log('showConnection called with:', { doctorId, familyMember });
+    console.log('Available doctors:', doctors);
+    const doctor = doctors.find(d => d.id === doctorId);
+    console.log('Found doctor:', doctor);
+    if (doctor) {
+      const visits = data.filter(v => v.familyMember === familyMember && v.doctorId === doctorId);
+      console.log('Found visits:', visits);
+      setSelectedConnection({ doctor, familyMember, visits });
+    }
+  }, [data, doctors]);
+
+  useImperativeHandle(ref, () => ({
+    showConnection
+  }), [showConnection]);
 
   useEffect(() => {
     if (!data.length || !svgRef.current) return;
@@ -194,4 +210,4 @@ export const SankeyDiagram: React.FC<SankeyDiagramProps> = ({ data, doctors }) =
       )}
     </>
   );
-}; 
+}); 

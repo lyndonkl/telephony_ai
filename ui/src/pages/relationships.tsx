@@ -1,11 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { PageTransition } from '../components/PageTransition';
 import { SankeyDiagram } from '../components/SankeyDiagram';
 import { DoctorVisitStats, Doctor } from '../types/doctor';
+import { socket } from '../utils/socket';
 
 export default function Relationships() {
   const [visitStats, setVisitStats] = useState<DoctorVisitStats[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const sankeyRef = useRef<{ showConnection: (doctorId: string, familyMember: string) => void }>(null);
+
+  useEffect(() => {
+    const handleViewRelationship = (data: { doctorId: string, familyMember: string }) => {
+      console.log('Received relationships:view event:', data);
+      sankeyRef.current?.showConnection(data.doctorId, data.familyMember);
+    };
+
+    socket.on('relationships:view', handleViewRelationship);
+    return () => {
+      socket.off('relationships:view', handleViewRelationship);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -38,7 +52,7 @@ export default function Relationships() {
         <h1 className="text-3xl font-bold mb-8">Family-Doctor Relationships</h1>
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
-            <SankeyDiagram data={visitStats} doctors={doctors} />
+            <SankeyDiagram ref={sankeyRef} data={visitStats} doctors={doctors} />
           </div>
         </div>
       </div>
