@@ -93,7 +93,7 @@ app.post('/api/doctors', (req, res) => {
   res.status(201).json(newDoctor);
 });
 
-app.delete('/api/doctors', (req, res) => {
+app.post('/api/doctors/delete', (req, res) => {
   const { toolCallId, args } = extractToolCall(req);
   let id;
   

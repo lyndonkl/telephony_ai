@@ -21,8 +21,8 @@ export default function Home() {
   }, []);
 
   const handleDelete = useCallback(async (id: string) => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors`, {
-      method: 'DELETE',
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors/delete`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
