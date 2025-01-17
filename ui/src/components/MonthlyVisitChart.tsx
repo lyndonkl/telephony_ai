@@ -1,138 +1,58 @@
-import { useEffect, useRef } from 'react';
-import { View, parse, Spec } from 'vega';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DoctorVisitStats } from '../types/doctor';
+import React from 'react';
 
 interface MonthlyVisitChartProps {
   data: DoctorVisitStats[];
 }
 
+const VisitBarContainer = React.memo(({ familyMember, children }: { 
+  familyMember: string;
+  children: React.ReactNode;
+}) => (
+  <div className="flex items-center h-10">
+    <div className="w-32">{familyMember}</div>
+    <div className="flex-1 h-10 bg-base-200 rounded-lg overflow-hidden">
+      {children}
+    </div>
+  </div>
+));
+
+const VisitBar = ({ visitCount, maxVisits }: { visitCount: number; maxVisits: number }) => (
+  <AnimatePresence mode="wait">
+    <motion.div
+      key={visitCount}
+      className="h-full bg-primary"
+      initial={{ width: 0 }}
+      animate={{ width: `${(visitCount / maxVisits) * 100}%` }}
+      exit={{ width: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <div className="h-full flex items-center px-4 text-white">
+        {visitCount} visits
+      </div>
+    </motion.div>
+  </AnimatePresence>
+);
+
 export const MonthlyVisitChart: React.FC<MonthlyVisitChartProps> = ({ data }) => {
-  console.log('MonthlyVisitChart data:', data);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const viewRef = useRef<View | null>(null);
+  const maxVisits = Math.max(...data.map(d => d.visitCount));
 
-  useEffect(() => {
-    if (!data || data.length === 0) {
-      console.log('No data available for chart');
-      return;
-    }
-    if (!containerRef.current) return;
+  const familyMembers = React.useMemo(() => 
+    [...new Set(data.map(d => d.familyMember))],
+    []
+  );
 
-    const spec: Spec = {
-      $schema: 'https://vega.github.io/schema/vega/v5.json',
-      width: 800,
-      height: 500,
-      padding: { top: 20, right: 30, bottom: 60, left: 50 },
-      autosize: 'fit',
-      signals: [
-        { 
-          name: "heightScale",
-          value: 0,
-          on: [{ events: "timer", update: "1" }]
-        }
-      ],
-      data: [
-        {
-          name: 'visits',
-          values: data
-        }
-      ],
-      scales: [
-        {
-          name: 'x',
-          type: 'band',
-          range: 'width',
-          domain: { data: 'visits', field: 'familyMember' },
-          padding: 0.2
-        },
-        {
-          name: 'y',
-          type: 'linear',
-          range: 'height',
-          nice: true,
-          zero: true,
-          domain: { data: 'visits', field: 'visitCount' }
-        },
-        {
-          name: 'color',
-          type: 'ordinal',
-          range: {
-            scheme: 'category10'
-          },
-          domain: { data: 'visits', field: 'familyMember' }
-        }
-      ],
-      axes: [
-        {
-          orient: 'bottom',
-          scale: 'x',
-          title: 'Family Member'
-        },
-        {
-          orient: 'left',
-          scale: 'y',
-          title: 'Number of Visits'
-        }
-      ],
-      marks: [
-        {
-          type: 'rect',
-          from: { data: 'visits' },
-          encode: {
-            enter: {
-              x: { scale: 'x', field: 'familyMember' },
-              width: { scale: 'x', band: 0.8 },
-              y: { scale: 'y', field: 'visitCount' },
-              y2: { scale: 'y', value: 0 },
-              fill: { scale: 'color', field: 'familyMember' },
-              tooltip: {
-                signal: "{" +
-                  "'Family Member': datum.familyMember, " +
-                  "'Visits': datum.visitCount" +
-                "}"
-              }
-            },
-            update: {
-              fillOpacity: { value: 1 }
-            },
-            hover: {
-              fillOpacity: { value: 0.8 }
-            }
-          }
-        }
-      ],
-      title: {
-        text: 'Monthly Visits by Family Member',
-        fontSize: 16
-      }
-    };
-
-    const runtime = parse(spec);
-    const view = new View(runtime)
-      .initialize(containerRef.current)
-      .width(containerRef.current.clientWidth)
-      .hover()
-      .run();
-
-    viewRef.current = view;
-
-    const handleResize = () => {
-      if (containerRef.current && viewRef.current) {
-        viewRef.current
-          .width(containerRef.current.clientWidth)
-          .run();
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      if (viewRef.current) {
-        viewRef.current.finalize();
-      }
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [data]);
-
-  return <div ref={containerRef} className="w-full h-[550px] overflow-hidden" />;
+  return (
+    <div className="space-y-4">
+      {familyMembers.map((familyMember) => (
+        <VisitBarContainer key={familyMember} familyMember={familyMember}>
+          <VisitBar 
+            visitCount={data.find(d => d.familyMember === familyMember)?.visitCount || 0}
+            maxVisits={maxVisits}
+          />
+        </VisitBarContainer>
+      ))}
+    </div>
+  );
 }; 

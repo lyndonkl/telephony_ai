@@ -93,26 +93,11 @@ export default function MonthlyVisits() {
                 Next Month
               </button>
             </div>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentMonth}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {currentMonth && (
-                  <>
-                    {/* Debug output */}
-                    {console.log('Current Month:', currentMonth)}
-                    {console.log('Filtered Data:', visitStats.filter(visit => visit.date === currentMonth))}
-                    <MonthlyVisitChart 
-                      data={visitStats.filter(visit => visit.date === currentMonth)} 
-                    />
-                  </>
-                )}
-              </motion.div>
-            </AnimatePresence>
+            {currentMonth && (
+              <MonthlyVisitChart 
+                data={visitStats.filter(visit => visit.date === currentMonth)} 
+              />
+            )}
           </div>
         </div>
       </div>
