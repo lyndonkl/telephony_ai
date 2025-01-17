@@ -4,6 +4,13 @@ import { useRouter } from 'next/router';
 export const Navigation: React.FC = () => {
   const router = useRouter();
 
+  const links = [
+    { href: '/', label: 'Doctors' },
+    { href: '/visit-trends', label: 'Visits' },
+    { href: '/monthly-visits', label: 'Monthly' },
+    { href: '/relationships', label: 'Relationships' }
+  ];
+
   return (
     <div className="navbar bg-base-100 shadow-lg mb-8">
       <div className="container mx-auto">
@@ -36,6 +43,14 @@ export const Navigation: React.FC = () => {
                 className={router.pathname === '/monthly-visits' ? 'active' : ''}
               >
                 Monthly Breakdown
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/relationships" 
+                className={router.pathname === '/relationships' ? 'active' : ''}
+              >
+                Relationships
               </Link>
             </li>
           </ul>
