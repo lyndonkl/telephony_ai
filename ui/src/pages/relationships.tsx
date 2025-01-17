@@ -7,7 +7,10 @@ import { socket } from '../utils/socket';
 export default function Relationships() {
   const [visitStats, setVisitStats] = useState<DoctorVisitStats[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const sankeyRef = useRef<{ showConnection: (doctorId: string, familyMember: string) => void }>(null);
+  const sankeyRef = useRef<{ 
+    showConnection: (doctorId: string, familyMember: string) => void;
+    closeConnection: () => void;
+  }>(null);
 
   useEffect(() => {
     const handleViewRelationship = (data: { doctorId: string, familyMember: string }) => {
@@ -15,9 +18,17 @@ export default function Relationships() {
       sankeyRef.current?.showConnection(data.doctorId, data.familyMember);
     };
 
+    const handleCloseRelationship = () => {
+      console.log('Received relationships:close event');
+      sankeyRef.current?.closeConnection();
+    };
+
     socket.on('relationships:view', handleViewRelationship);
+    socket.on('relationships:close', handleCloseRelationship);
+
     return () => {
       socket.off('relationships:view', handleViewRelationship);
+      socket.off('relationships:close', handleCloseRelationship);
     };
   }, []);
 

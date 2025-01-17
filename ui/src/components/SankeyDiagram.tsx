@@ -26,7 +26,10 @@ interface ConnectionDetails {
   visits: DoctorVisitStats[];
 }
 
-export const SankeyDiagram = forwardRef<{ showConnection: (doctorId: string, familyMember: string) => void }, SankeyDiagramProps>(({ data, doctors }, ref) => {
+export const SankeyDiagram = forwardRef<{ 
+  showConnection: (doctorId: string, familyMember: string) => void;
+  closeConnection: () => void;
+}, SankeyDiagramProps>(({ data, doctors }, ref) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedConnection, setSelectedConnection] = useState<ConnectionDetails | null>(null);
 
@@ -42,8 +45,13 @@ export const SankeyDiagram = forwardRef<{ showConnection: (doctorId: string, fam
     }
   }, [data, doctors]);
 
+  const closeConnection = useCallback(() => {
+    setSelectedConnection(null);
+  }, []);
+
   useImperativeHandle(ref, () => ({
-    showConnection
+    showConnection,
+    closeConnection
   }), [showConnection]);
 
   useEffect(() => {

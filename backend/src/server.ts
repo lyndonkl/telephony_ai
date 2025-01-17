@@ -225,6 +225,20 @@ app.post('/api/viewRelationship', (req, res) => {
   });
 });
 
+app.post('/api/closeRelationship', (req, res) => {
+  const { toolCallId } = extractToolCall(req);
+  console.log('Received closeRelationship request');
+
+  io.emit('relationships:close');
+
+  res.status(200).json({
+    results: [{
+      toolCallId,
+      result: 'Relationship view closed'
+    }]
+  });
+});
+
 // Start server
 const PORT = process.env.PORT || 4000;
 httpServer.listen(PORT, () => {
