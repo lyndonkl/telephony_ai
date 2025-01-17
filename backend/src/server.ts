@@ -21,6 +21,18 @@ const visitStats = [...mockVisitStats];
 app.use(cors());
 app.use(express.json());
 
+// Helper function to extract tool call details
+const extractToolCall = (req: express.Request) => {
+  const toolCall = req.body?.message?.toolCalls?.[0];
+  if (!toolCall) {
+    return { toolCallId: 'default', args: req.body };
+  }
+  return {
+    toolCallId: toolCall.id,
+    args: toolCall.function.arguments
+  };
+};
+
 // WebSocket events
 io.on('connection', (socket) => {
   console.log('Client connected');
@@ -41,59 +53,117 @@ app.get('/api/doctors', (req, res) => {
 });
 
 app.post('/api/doctors', (req, res) => {
+  let doctorData;
+  
+  // Handle telephony format
+  if (req.body?.message?.toolCalls) {
+    const { toolCallId, args } = extractToolCall(req);
+    const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
+    doctorData = {
+      name: parsedArgs.name,
+      specialty: parsedArgs.specialty,
+      lastVisited: parsedArgs.lastVisisted // Note: handling the typo in the field name
+    };
+
+    const newDoctor: Doctor = {
+      id: Date.now().toString(),
+      ...doctorData
+    };
+
+    doctors.push(newDoctor);
+    io.emit('doctors:list', doctors);
+
+    return res.status(201).json({
+      results: [{
+        toolCallId,
+        result: `Created new doctor: ${newDoctor.name}`
+      }]
+    });
+  }
+
+  // Handle direct API calls
   const newDoctor: Doctor = {
     id: Date.now().toString(),
     ...req.body,
     lastVisited: new Date()
   };
+  
   doctors.push(newDoctor);
   io.emit('doctors:list', doctors);
-  res.status(201).json({
-    results: [{
-      toolCallId: req.body.toolCallId || 'default',
-      result: newDoctor
-    }]
-  });
+  res.status(201).json(newDoctor);
 });
 
 app.delete('/api/doctors', (req, res) => {
-  const { id, toolCallId } = req.body;
+  const { toolCallId, args } = extractToolCall(req);
+  let id;
+  
+  // Handle telephony format
+  if (req.body?.message?.toolCalls) {
+    const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
+    id = parsedArgs.id.toString(); // Convert numeric ID to string
+  } else {
+    id = req.body.id;
+  }
+
   if (!id) {
     return res.status(400).json({ error: 'Doctor ID is required' });
   }
+  
   doctors = doctors.filter(d => d.id !== id);
   io.emit('doctors:list', doctors);
   res.status(200).json({
     results: [{
-      toolCallId: toolCallId || 'default',
+      toolCallId,
       result: `Doctor ${id} deleted successfully`
     }]
   });
 });
 
 app.post('/api/doctors/highlight', (req, res) => {
-  const { id, toolCallId } = req.body;
+  const { toolCallId, args } = extractToolCall(req);
+  let id;
+  
+  // Handle telephony format
+  if (req.body?.message?.toolCalls) {
+    const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
+    id = parsedArgs.id.toString(); // Convert numeric ID to string
+  } else {
+    id = req.body.id;
+  }
+
   if (!id) {
     return res.status(400).json({ error: 'Doctor ID is required' });
   }
+  
   io.emit('doctor:highlight', id);
   res.status(200).json({
     results: [{
-      toolCallId: toolCallId || 'default',
+      toolCallId,
       result: `Doctor ${id} highlighted successfully`
     }]
   });
 });
 
 app.post('/api/doctors/unhighlight', (req, res) => {
-  const { id, toolCallId } = req.body;
+  const { toolCallId, args } = extractToolCall(req);
+  let id;
+  
+  // Handle telephony format
+  if (req.body?.message?.toolCalls) {
+    const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
+    id = parsedArgs.id.toString(); // Convert numeric ID to string
+  } else {
+    id = req.body.id;
+  }
+
   if (!id) {
     return res.status(400).json({ error: 'Doctor ID is required' });
   }
+  
   io.emit('doctor:unhighlight', id);
   res.status(200).json({
     results: [{
-      toolCallId: toolCallId || 'default',
+      toolCallId,
       result: `Doctor ${id} unhighlighted successfully`
     }]
   });
@@ -101,14 +171,15 @@ app.post('/api/doctors/unhighlight', (req, res) => {
 
 // Navigation endpoint
 app.post('/api/navigate', (req, res) => {
-  const { tab, toolCallId } = req.body;
+  const { toolCallId, args } = extractToolCall(req);
+  const { tab } = typeof args === 'string' ? JSON.parse(args) : args;
   if (!tab) {
     return res.status(400).json({ error: 'Tab parameter is required' });
   }
   io.emit('navigation:change', tab);
   res.status(200).json({
     results: [{
-      toolCallId: toolCallId || 'default',
+      toolCallId,
       result: `Navigated to ${tab} tab successfully`
     }]
   });
@@ -116,14 +187,15 @@ app.post('/api/navigate', (req, res) => {
 
 // Month selection endpoint
 app.post('/api/visits/month', (req, res) => {
-  const { month, toolCallId } = req.body;
+  const { toolCallId, args } = extractToolCall(req);
+  const { month } = typeof args === 'string' ? JSON.parse(args) : args;
   if (!month) {
     return res.status(400).json({ error: 'Month parameter is required' });
   }
   io.emit('visits:setMonth', month);
   res.status(200).json({
     results: [{
-      toolCallId: toolCallId || 'default',
+      toolCallId,
       result: `Month set to ${month} successfully`
     }]
   });
