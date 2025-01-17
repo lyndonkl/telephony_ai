@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { sankey, sankeyLinkHorizontal } from 'd3-sankey';
 import { DoctorVisitStats } from '../types/doctor';
@@ -20,8 +20,15 @@ interface SankeyLink {
   value: number;
 }
 
+interface ConnectionDetails {
+  doctor: Doctor;
+  familyMember: string;
+  visits: DoctorVisitStats[];
+}
+
 export const SankeyDiagram: React.FC<SankeyDiagramProps> = ({ data, doctors }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const [selectedConnection, setSelectedConnection] = useState<ConnectionDetails | null>(null);
 
   useEffect(() => {
     if (!data.length || !svgRef.current) return;
@@ -34,7 +41,7 @@ export const SankeyDiagram: React.FC<SankeyDiagramProps> = ({ data, doctors }) =
     const nodes: SankeyNode[] = [
       ...familyMembers.map(name => ({ name, type: 'family' as const })),
       ...doctorIds.map(id => ({ 
-        name: doctors.find(d => d.id === id)?.name || `Dr. ${id}`,
+        name: `${doctors.find(d => d.id === id)?.name}|${id}`,
         type: 'doctor' as const 
       }))
     ];
@@ -90,13 +97,31 @@ export const SankeyDiagram: React.FC<SankeyDiagramProps> = ({ data, doctors }) =
       .attr('d', sankeyLinkHorizontal())
       .attr('fill', 'none')
       .attr('stroke', '#aaa')
+      .style('cursor', 'pointer')
       .attr('stroke-width', d => Math.max(1, d.width || 1))
       .attr('opacity', 0.3)
-      .on('mouseover', function() {
+      .on('mouseover', function(_, d) {
         d3.select(this).attr('opacity', 0.8);
       })
-      .on('mouseout', function() {
+      .on('mouseout', function(_, d) {
         d3.select(this).attr('opacity', 0.3);
+      })
+      .on('click', (_, d) => {
+        console.log('Link clicked:', d);
+        const sourceNode = d.source as unknown as SankeyNode;
+        const targetNode = d.target as unknown as SankeyNode;
+        console.log('Source:', sourceNode, 'Target:', targetNode);
+        const familyMember = sourceNode.type === 'family' ? sourceNode.name : targetNode.name;
+        const doctorNode = sourceNode.type === 'doctor' ? sourceNode : targetNode;
+        const doctorId = doctorNode.name.split('|')[1];
+        console.log('Family Member:', familyMember, 'Doctor ID:', doctorId);
+        const doctor = doctors.find(d => d.id === doctorId);
+        console.log('Found Doctor:', doctor);
+        if (doctor) {
+          const visits = data.filter(v => v.familyMember === familyMember && v.doctorId === doctorId);
+          console.log('Filtered Visits:', visits);
+          setSelectedConnection({ doctor, familyMember, visits });
+        }
       });
 
     // Add nodes
@@ -119,10 +144,54 @@ export const SankeyDiagram: React.FC<SankeyDiagramProps> = ({ data, doctors }) =
       .attr('y', d => (d.y1! + d.y0!) / 2)
       .attr('dy', '0.35em')
       .attr('text-anchor', d => d.type === 'family' ? 'start' : 'end')
-      .text(d => d.name)
+      .text(d => d.type === 'family' ? d.name : d.name.split('|')[0])
       .attr('font-size', '10px');
 
-  }, [data]);
+  }, [data, doctors]);
 
-  return <svg ref={svgRef} />;
+  return (
+    <>
+      <svg ref={svgRef} />
+      {selectedConnection && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-2xl w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">
+                {selectedConnection.familyMember}'s Visits with {selectedConnection.doctor.name}
+              </h2>
+              <button 
+                className="btn btn-ghost"
+                onClick={() => setSelectedConnection(null)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-96">
+              <table className="table w-full">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Number of Visits</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedConnection.visits
+                    .sort((a, b) => b.date.localeCompare(a.date))
+                    .map((visit, index) => (
+                      <tr key={index}>
+                        <td>{new Date(visit.date).toLocaleDateString('default', { 
+                          year: 'numeric', 
+                          month: 'long'
+                        })}</td>
+                        <td>{visit.visitCount} visits</td>
+                      </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }; 
