@@ -8,7 +8,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: ['http://localhost:3001', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'DELETE']
   }
 });
@@ -18,7 +18,10 @@ let doctors = [...mockDoctors];
 const visitStats = [...mockVisitStats];
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3001', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'DELETE']
+}));
 app.use(express.json());
 
 // Helper function to extract tool call details
@@ -57,12 +60,10 @@ app.post('/api/doctors', (req, res) => {
   
   // Handle telephony format
   if (req.body?.message?.toolCalls) {
-    const { toolCallId, args } = extractToolCall(req);
-    const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
     doctorData = {
-      name: parsedArgs.name,
-      specialty: parsedArgs.specialty,
-      lastVisited: parsedArgs.lastVisisted // Note: handling the typo in the field name
+      name: req.body.name,
+      specialty: req.body.specialty,
+      lastVisited: req.body.lastVisisted // Note: handling the typo in the field name
     };
 
     const newDoctor: Doctor = {
@@ -74,10 +75,7 @@ app.post('/api/doctors', (req, res) => {
     io.emit('doctors:list', doctors);
 
     return res.status(201).json({
-      results: [{
-        toolCallId,
-        result: `Created new doctor: ${newDoctor.name}`
-      }]
+      result: `Created new doctor: ${newDoctor.name}`
     });
   }
 
@@ -94,16 +92,7 @@ app.post('/api/doctors', (req, res) => {
 });
 
 app.post('/api/doctors/delete', (req, res) => {
-  const { toolCallId, args } = extractToolCall(req);
-  let id;
-  
-  // Handle telephony format
-  if (req.body?.message?.toolCalls) {
-    const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
-    id = parsedArgs.id.toString(); // Convert numeric ID to string
-  } else {
-    id = req.body.id;
-  }
+  const { id } = req.body;
 
   if (!id) {
     return res.status(400).json({ error: 'Doctor ID is required' });
@@ -112,49 +101,25 @@ app.post('/api/doctors/delete', (req, res) => {
   doctors = doctors.filter(d => d.id !== id);
   io.emit('doctors:list', doctors);
   res.status(200).json({
-    results: [{
-      toolCallId,
-      result: `Doctor ${id} deleted successfully`
-    }]
+    result: `Doctor ${id} deleted successfully`
   });
 });
 
 app.post('/api/doctors/highlight', (req, res) => {
-  const { toolCallId, args } = extractToolCall(req);
-  let id;
+  const { id } = req.body;
   
-  // Handle telephony format
-  if (req.body?.message?.toolCalls) {
-    const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
-    id = parsedArgs.id.toString(); // Convert numeric ID to string
-  } else {
-    id = req.body.id;
-  }
-
   if (!id) {
     return res.status(400).json({ error: 'Doctor ID is required' });
   }
   
   io.emit('doctor:highlight', id);
   res.status(200).json({
-    results: [{
-      toolCallId,
-      result: `Doctor ${id} highlighted successfully`
-    }]
+    result: `Doctor ${id} highlighted successfully`
   });
 });
 
 app.post('/api/doctors/unhighlight', (req, res) => {
-  const { toolCallId, args } = extractToolCall(req);
-  let id;
-  
-  // Handle telephony format
-  if (req.body?.message?.toolCalls) {
-    const parsedArgs = typeof args === 'string' ? JSON.parse(args) : args;
-    id = parsedArgs.id.toString(); // Convert numeric ID to string
-  } else {
-    id = req.body.id;
-  }
+  const { id } = req.body;
 
   if (!id) {
     return res.status(400).json({ error: 'Doctor ID is required' });
@@ -162,42 +127,31 @@ app.post('/api/doctors/unhighlight', (req, res) => {
   
   io.emit('doctor:unhighlight', id);
   res.status(200).json({
-    results: [{
-      toolCallId,
-      result: `Doctor ${id} unhighlighted successfully`
-    }]
+    result: `Doctor ${id} unhighlighted successfully`
   });
 });
 
 // Navigation endpoint
 app.post('/api/navigate', (req, res) => {
-  const { toolCallId, args } = extractToolCall(req);
-  const { tab } = typeof args === 'string' ? JSON.parse(args) : args;
+  const { tab } = req.body;
   if (!tab) {
     return res.status(400).json({ error: 'Tab parameter is required' });
   }
   io.emit('navigation:change', tab);
   res.status(200).json({
-    results: [{
-      toolCallId,
-      result: `Navigated to ${tab} tab successfully`
-    }]
+    result: `Navigated to ${tab} tab successfully`
   });
 });
 
 // Month selection endpoint
 app.post('/api/visits/month', (req, res) => {
-  const { toolCallId, args } = extractToolCall(req);
-  const { month } = typeof args === 'string' ? JSON.parse(args) : args;
+  const { month } = req.body;
   if (!month) {
     return res.status(400).json({ error: 'Month parameter is required' });
   }
   io.emit('visits:setMonth', month);
   res.status(200).json({
-    results: [{
-      toolCallId,
-      result: `Month set to ${month} successfully`
-    }]
+    result: `Month set to ${month} successfully`
   });
 });
 
@@ -206,10 +160,9 @@ app.get('/api/visits/stats', (req, res) => {
 });
 
 app.post('/api/viewRelationship', (req, res) => {
-  const { toolCallId, args } = extractToolCall(req);
-  console.log('Received viewRelationship request:', { toolCallId, args });
+  const { familyMember, doctorId } = req.body;
+  console.log('Received viewRelationship request:', { familyMember, doctorId });
 
-  const { doctorId, familyMember } = args;
   const doctorIdString = doctorId.toString();
   console.log('Emitting relationships:view event:', { doctorId, familyMember });
   io.emit('relationships:view', { 
@@ -218,24 +171,17 @@ app.post('/api/viewRelationship', (req, res) => {
   });
 
   res.status(200).json({
-    results: [{
-      toolCallId,
-      result: `Viewed relationship for ${familyMember} with ${doctorIdString}`
-    }]
+    result: `Viewed relationship for ${familyMember} with ${doctorIdString}`
   });
 });
 
 app.post('/api/closeRelationship', (req, res) => {
-  const { toolCallId } = extractToolCall(req);
   console.log('Received closeRelationship request');
 
   io.emit('relationships:close');
 
   res.status(200).json({
-    results: [{
-      toolCallId,
-      result: 'Relationship view closed'
-    }]
+    result: 'Relationship view closed'
   });
 });
 

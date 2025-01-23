@@ -19,8 +19,11 @@ export default function App({ Component, pageProps }: AppProps) {
         case 'visits':
           router.push('/visit-trends');
           break;
-        case 'family':
+        case 'monthly':
           router.push('/monthly-visits');
+          break;
+        case 'relationships':
+          router.push('/relationships');
           break;
       }
     };
