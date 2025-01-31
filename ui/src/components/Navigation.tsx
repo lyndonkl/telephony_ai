@@ -8,7 +8,8 @@ export const Navigation: React.FC = () => {
     { href: '/', label: 'Doctors' },
     { href: '/visit-trends', label: 'Visits' },
     { href: '/monthly-visits', label: 'Monthly' },
-    { href: '/relationships', label: 'Relationships' }
+    { href: '/relationships', label: 'Relationships' },
+    { href: '/heart-rate', label: 'Heart Rate' }
   ];
 
   return (
@@ -21,38 +22,16 @@ export const Navigation: React.FC = () => {
         </div>
         <div className="flex-none">
           <ul className="menu menu-horizontal px-1">
-            <li>
-              <Link 
-                href="/" 
-                className={router.pathname === '/' ? 'active' : ''}
-              >
-                Doctors
-              </Link>
-            </li>
-            <li>
-              <Link 
-                href="/visit-trends" 
-                className={router.pathname === '/visit-trends' ? 'active' : ''}
-              >
-                Visit Trends
-              </Link>
-            </li>
-            <li>
-              <Link 
-                href="/monthly-visits" 
-                className={router.pathname === '/monthly-visits' ? 'active' : ''}
-              >
-                Monthly Breakdown
-              </Link>
-            </li>
-            <li>
-              <Link 
-                href="/relationships" 
-                className={router.pathname === '/relationships' ? 'active' : ''}
-              >
-                Relationships
-              </Link>
-            </li>
+            {links.map((link) => (
+              <li key={link.href}>
+                <Link 
+                  href={link.href} 
+                  className={router.pathname === link.href ? 'active' : ''}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

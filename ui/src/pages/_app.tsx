@@ -35,7 +35,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }, [router]);
 
   return (
-    <>
+    <main>
       <Head>
         <title>Doctor Visit Dashboard</title>
         <meta name="description" content="Real-time doctor visit dashboard" />
@@ -45,6 +45,6 @@ export default function App({ Component, pageProps }: AppProps) {
       <AnimatePresence mode="wait">
         <Component {...pageProps} key={router.pathname} />
       </AnimatePresence>
-    </>
+    </main>
   );
 } 

@@ -1,0 +1,19 @@
+meta {
+  name: Article
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:4000/api/medical-info
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {"id":"test-123","type":"article","title":"Test Article","content":"Test content","doctorId":"doc-123","doctorName":"Dr. Test","severity":"low"}
+}

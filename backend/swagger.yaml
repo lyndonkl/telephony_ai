@@ -1,0 +1,338 @@
+openapi: 3.0.0
+info:
+  title: Doctor Management API
+  description: API for managing doctors and visit statistics
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:4000
+    description: Local development server
+
+paths:
+  /api/doctors:
+    get:
+      summary: Get all doctors
+      description: Returns a list of all doctors
+      responses:
+        '200':
+          description: List of doctors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Doctor'
+
+    post:
+      summary: Create a new doctor
+      description: Add a new doctor to the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DoctorInput'
+      responses:
+        '201':
+          description: Doctor created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Doctor'
+
+  /api/doctors/delete:
+    post:
+      summary: Delete a doctor
+      description: Remove a doctor from the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        '200':
+          description: Doctor deleted successfully
+        '400':
+          description: Doctor ID is required
+
+  /api/doctors/highlight:
+    post:
+      summary: Highlight a doctor
+      description: Highlight a specific doctor in the UI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        '200':
+          description: Doctor highlighted successfully
+        '400':
+          description: Doctor ID is required
+
+  /api/doctors/unhighlight:
+    post:
+      summary: Unhighlight a doctor
+      description: Remove highlight from a doctor in the UI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        '200':
+          description: Doctor unhighlighted successfully
+        '400':
+          description: Doctor ID is required
+
+  /api/navigate:
+    post:
+      summary: Navigate to a tab
+      description: Change the current tab in the UI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tab:
+                  type: string
+              required:
+                - tab
+      responses:
+        '200':
+          description: Navigation successful
+        '400':
+          description: Tab parameter is required
+
+  /api/visits/stats:
+    get:
+      summary: Get visit statistics
+      description: Returns statistics about doctor visits
+      responses:
+        '200':
+          description: Visit statistics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VisitStats'
+
+  /api/visits/month:
+    post:
+      summary: Set current month
+      description: Set the current month for visit statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                month:
+                  type: string
+              required:
+                - month
+      responses:
+        '200':
+          description: Month set successfully
+        '400':
+          description: Month parameter is required
+
+  /api/viewRelationship:
+    post:
+      summary: View doctor-family relationship
+      description: View relationship between a doctor and family member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                familyMember:
+                  type: string
+                doctorId:
+                  type: string
+              required:
+                - familyMember
+                - doctorId
+      responses:
+        '200':
+          description: Relationship view successful
+
+  /api/closeRelationship:
+    post:
+      summary: Close relationship view
+      description: Close the current relationship view
+      responses:
+        '200':
+          description: Relationship view closed successfully
+
+  /api/reviews/{doctorId}:
+    get:
+      summary: Get reviews for a doctor
+      description: Returns all reviews for a specific doctor
+      parameters:
+        - in: path
+          name: doctorId
+          required: true
+          schema:
+            type: string
+          description: ID of the doctor
+      responses:
+        '200':
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DoctorReview'
+        '500':
+          description: Internal server error
+
+  /api/reviews:
+    post:
+      summary: Create a new review
+      description: Add a new review for a doctor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doctorId:
+                  type: string
+                rating:
+                  type: number
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+                authorName:
+                  type: string
+              required:
+                - doctorId
+                - rating
+                - comment
+                - authorName
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoctorReview'
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error
+
+  /api/reviews/{reviewId}:
+    delete:
+      summary: Delete a review
+      description: Remove a specific review
+      parameters:
+        - in: path
+          name: reviewId
+          required: true
+          schema:
+            type: string
+          description: ID of the review to delete
+      responses:
+        '200':
+          description: Review deleted successfully
+        '404':
+          description: Review not found
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    Doctor:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        specialty:
+          type: string
+        lastVisited:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - specialty
+        - lastVisited
+
+    DoctorInput:
+      type: object
+      properties:
+        name:
+          type: string
+        specialty:
+          type: string
+      required:
+        - name
+        - specialty
+
+    VisitStats:
+      type: object
+      properties:
+        month:
+          type: string
+        visits:
+          type: integer
+      required:
+        - month
+        - visits
+
+    DoctorReview:
+      type: object
+      properties:
+        id:
+          type: string
+        doctorId:
+          type: string
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        authorName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - doctorId
+        - rating
+        - comment
+        - authorName
+        - createdAt

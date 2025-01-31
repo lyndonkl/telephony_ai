@@ -1,0 +1,104 @@
+meta {
+  name: Send Medical Info
+  type: http
+  seq: 1
+}
+
+# Send Medical Information to WebSocket
+post {
+  url: http://localhost:4000/api/medical-info
+  body: json
+}
+
+# Test Article
+body:json {
+  {
+    "id": "article-123",
+    "type": "article",
+    "title": "Understanding Heart Rate Zones",
+    "content": "Heart rate zones are personalized ranges of heart rates where you achieve different training benefits...",
+    "timestamp": "{{now}}",
+    "doctorId": "doc-456",
+    "doctorName": "Dr. Smith",
+    "severity": "low",
+    "metadata": {
+      "articleUrl": "https://medical-journal.com/heart-rate-zones",
+      "articleSource": "American Heart Association",
+      "tags": ["heart-rate", "fitness", "health-education"]
+    }
+  }
+}
+
+# Test Medication
+body:json {
+  {
+    "id": "med-789",
+    "type": "medication",
+    "title": "Beta Blocker Prescription",
+    "content": "Based on your heart rate patterns, I'm prescribing a beta blocker to help regulate your heart rate.",
+    "timestamp": "{{now}}",
+    "doctorId": "doc-456",
+    "doctorName": "Dr. Smith",
+    "severity": "medium",
+    "metadata": {
+      "dosage": "25mg",
+      "frequency": "Once daily",
+      "duration": "30 days",
+      "sideEffects": [
+        "Fatigue",
+        "Cold hands",
+        "Dizziness"
+      ],
+      "tags": ["medication", "heart-rate", "beta-blocker"]
+    }
+  }
+}
+
+# Test Warning
+body:json {
+  {
+    "id": "warn-101",
+    "type": "warning",
+    "title": "Elevated Heart Rate Alert",
+    "content": "Your heart rate has been consistently above normal ranges. Please schedule a follow-up appointment.",
+    "timestamp": "{{now}}",
+    "doctorId": "doc-456",
+    "doctorName": "Dr. Smith",
+    "severity": "high",
+    "metadata": {
+      "tags": ["alert", "follow-up", "high-priority"]
+    }
+  }
+}
+
+# Test Recommendation
+body:json {
+  {
+    "id": "rec-202",
+    "type": "recommendation",
+    "title": "Exercise Modification",
+    "content": "Based on your heart rate data, I recommend reducing high-intensity workouts...",
+    "timestamp": "{{now}}",
+    "doctorId": "doc-456",
+    "doctorName": "Dr. Smith",
+    "severity": "medium",
+    "metadata": {
+      "tags": ["exercise", "lifestyle", "heart-health"]
+    }
+  }
+}
+
+tests {
+  test("should return 200 OK") {
+    expect(response.status).toBe(200)
+  }
+  
+  test("response should include success message") {
+    expect(response.body.success).toBe(true)
+  }
+}
+
+docs {
+  title: "Send Medical Information"
+  description: "Send medical information (articles, medications, warnings, recommendations) to be displayed in the heart rate monitor interface"
+} 
